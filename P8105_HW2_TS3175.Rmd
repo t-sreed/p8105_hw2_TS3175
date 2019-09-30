@@ -1,0 +1,18 @@
+---
+title: "p8105_hw2_TS3175"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+HH_data = 
+  readxl::read_excel("./HW2_data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
+  sheet = "Mr. Trash Wheel") %>%
+  janitor::clean_names()
+```
+
+
