@@ -366,12 +366,52 @@ summary {
 </div>
 
 
+<div id="problem-1" class="section level2">
+<h2>Problem 1</h2>
+<div id="read-in-mr.trash-wheel-data-omit-rows-without-dumpsterspecific-data-and-round-sports-balls-to-the-nearest-integer." class="section level3">
+<h3>Read in Mr. Trash Wheel data, omit rows without dumpsterspecific data, and round sports balls to the nearest integer.</h3>
 <pre class="r"><code>HH_data = 
-  readxl::read_excel(&quot;./HW2_data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;, 
-  sheet = &quot;Mr. Trash Wheel&quot;) %&gt;%
-  janitor::clean_names()</code></pre>
+  readxl::read_excel(&quot;./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;, 
+  sheet = &quot;Mr. Trash Wheel&quot;) %&gt;% 
+  janitor::clean_names()%&gt;% 
+  select(-x15, -x16, -x17)%&gt;% 
+  drop_na(dumpster)%&gt;% 
+  mutate(sports_balls= as.integer(round(sports_balls, digits=0)))</code></pre>
 <pre><code>## New names:
-## * `` -&gt; ...15</code></pre>
+## * `` -&gt; ...15
+## * `` -&gt; ...16
+## * `` -&gt; ...17</code></pre>
+</div>
+<div id="read-in-2017-precipitation-data-omit-rows-that-do-not-have-precipitation-data-and-create-a-year-variable" class="section level3">
+<h3>Read in 2017 precipitation data, omit rows that do not have precipitation data, and create a year variable</h3>
+<pre class="r"><code>percip7_data = 
+  readxl::read_excel(&quot;./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;, 
+  sheet = &quot;2017 Precipitation&quot;,
+  range=&quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names()%&gt;% 
+  drop_na(total)%&gt;% 
+  mutate(year=2017)</code></pre>
+</div>
+<div id="read-in-2018-precipitation-data-omit-rows-that-do-not-have-precipitation-data-and-create-a-year-variable" class="section level3">
+<h3>Read in 2018 precipitation data, omit rows that do not have precipitation data, and create a year variable</h3>
+<pre class="r"><code>percip8_data = 
+  readxl::read_excel(&quot;./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx&quot;, 
+  sheet = &quot;2018 Precipitation&quot;,
+  range=&quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names()%&gt;% 
+  drop_na(total)%&gt;% 
+  mutate(year=2018)</code></pre>
+</div>
+<div id="combined-2017-and-2018-precipition-data" class="section level3">
+<h3>Combined 2017 and 2018 precipition data</h3>
+<pre class="r"><code>##Combine precipitation data
+percip_total=
+  bind_rows(percip7_data, percip8_data) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(month=month.name[month])</code></pre>
+<p>The total number of observations in the healthy harbor dataset is 344. The total number of observations in 2017-2018 precipitation data is 24. The total precipitation in 2018 was 103.26. The median sports balls in a dumpster from 2017 is 8. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year.</p>
+</div>
+</div>
 
 
 

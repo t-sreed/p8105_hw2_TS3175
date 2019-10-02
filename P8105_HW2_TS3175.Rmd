@@ -7,12 +7,45 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-
+## Problem 1 
+### Read in Mr. Trash Wheel data, omit rows without dumpsterspecific data, and round sports balls to the nearest integer.
 ```{r}
 HH_data = 
-  readxl::read_excel("./HW2_data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", 
-  sheet = "Mr. Trash Wheel") %>%
-  janitor::clean_names()
+  readxl::read_excel("./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
+  sheet = "Mr. Trash Wheel") %>% 
+  janitor::clean_names()%>% 
+  select(-x15, -x16, -x17)%>% 
+  drop_na(dumpster)%>% 
+  mutate(sports_balls= as.integer(round(sports_balls, digits=0)))
 ```
+### Read in 2017 precipitation data, omit rows that do not have precipitation data, and create a year variable
+```{r}
+percip7_data = 
+  readxl::read_excel("./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
+  sheet = "2017 Precipitation",
+  range="A2:B14") %>% 
+  janitor::clean_names()%>% 
+  drop_na(total)%>% 
+  mutate(year=2017)
+```
+### Read in 2018 precipitation data, omit rows that do not have precipitation data, and create a year variable
+```{r}
+percip8_data = 
+  readxl::read_excel("./HW2_data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", 
+  sheet = "2018 Precipitation",
+  range="A2:B14") %>% 
+  janitor::clean_names()%>% 
+  drop_na(total)%>% 
+  mutate(year=2018)
+```
+### Combined 2017 and 2018 precipition data 
+```{r}
+##Combine precipitation data
+percip_total=
+  bind_rows(percip7_data, percip8_data) %>% 
+  janitor::clean_names() %>% 
+  mutate(month=month.name[month])
+```
+The total number of observations in the healthy harbor dataset is `r nrow(HH_data)`. The total number of observations in 2017-2018 precipitation data is `r nrow(percip_total)`. The total precipitation in 2018 was `r sum(pull(percip_total, total))`. The median sports balls in a dumpster from 2017 is `r median(pull(HH_data, sports_balls))`. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year.
 
 
