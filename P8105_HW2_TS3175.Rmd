@@ -40,12 +40,61 @@ percip8_data =
 ```
 ### Combined 2017 and 2018 precipition data 
 ```{r}
-##Combine precipitation data
 percip_total=
   bind_rows(percip7_data, percip8_data) %>% 
   janitor::clean_names() %>% 
   mutate(month=month.name[month])
 ```
-The total number of observations in the healthy harbor dataset is `r nrow(HH_data)`. The total number of observations in 2017-2018 precipitation data is `r nrow(percip_total)`. The total precipitation in 2018 was `r sum(pull(percip_total, total))`. The median sports balls in a dumpster from 2017 is `r median(pull(HH_data, sports_balls))`. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year.
-
-
+Data Summary:
+The total number of observations in the healthy harbor dataset is `r nrow(HH_data)`. The total number of observations in 2017-2018 precipitation data is `r nrow(percip_total)`. The total precipitation in 2018 was `r sum(pull(percip8_data, total))`. The median sports balls in a dumpster from 2017 is `r median(pull(filter(HH_data, year==2017), sports_balls))`. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year.
+## Problem 2
+### Read in pols month data and create one president variable that encompasses dem and gop. Removed day variable at the end.  
+```{r}
+pols_month = read_csv("./HW2_data/fivethirtyeight_datasets/pols-month.csv") %>%
+  janitor::clean_names() %>% 
+  separate(mon, into= c("year", "month", "day"),
+  convert=TRUE) %>% 
+  mutate(month=month.name[month]) %>% 
+  mutate(prez_dem=recode(prez_dem, "1"="dem")) %>% 
+  mutate(prez_gop=recode(prez_gop, "1" = "gop")) %>%
+  pivot_longer(c("prez_dem", "prez_gop"),
+               values_to = "president",
+               values_drop_na = TRUE) %>% 
+   select(-day)
+```
+## Read in Five Thirty Eight data and arrange data to month day year and remove day variable.
+```{r}
+snp_data = 
+  read_csv("./HW2_data/fivethirtyeight_datasets/snp.csv") %>%
+  janitor::clean_names() %>% 
+  separate(date, into= c("month", "day", "year"),
+  convert=TRUE) %>% 
+  select(year, month, -day, close)%>% 
+  mutate(month=month.name[month])
+```
+## Read in Unemployment data and tidy data to match previous two data sets.
+```{r}
+unemp_data=
+  read_csv("./HW2_data/fivethirtyeight_datasets/unemployment.csv") %>%
+  pivot_longer(Jan:Dec,
+              names_to="month",
+              values_to="rate")%>%
+  mutate(month=match(month, month.abb)) %>% 
+  mutate(month=month.name[month]) %>% 
+  mutate(Year=as.integer(Year)) %>% 
+  janitor::clean_names()
+```
+## Merge all datasets
+```{r}
+Prob_2= pols_month %>% 
+  left_join(snp_data,
+            by=c("year", "month")) %>% 
+  left_join(unemp_data,
+            by=c("year", "month"))
+```
+Data Summary:
+The data in the pols-month data set included the the number of national politicians who are democratic or republican for any given month from 1947-2015. With this data, a variable was created categorizing the variable president to democratic and republican polling categories. This dataset has 817 observatins and 10 variables.
+The data in the snp dataset is the Standard & Poor's stock market index. The dataset contains the closing values of the stock index of the associated date and the date of the observation for 1950-2015. This dataset contains 787 observations and 3 variables.
+The unemployment dataset includes the percentage of unemployment for month of the associated year for 1948-2015. This dataset contains 816 observations and 4 variables.
+The three datasets were merged resulting in dataset "prob_2" wich has observations from 1947-2015 and 817 observations and 13 variables. 
+The key variables used throughout are month and year.

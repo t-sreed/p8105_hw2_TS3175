@@ -404,13 +404,92 @@ summary {
 </div>
 <div id="combined-2017-and-2018-precipition-data" class="section level3">
 <h3>Combined 2017 and 2018 precipition data</h3>
-<pre class="r"><code>##Combine precipitation data
-percip_total=
+<pre class="r"><code>percip_total=
   bind_rows(percip7_data, percip8_data) %&gt;% 
   janitor::clean_names() %&gt;% 
   mutate(month=month.name[month])</code></pre>
-<p>The total number of observations in the healthy harbor dataset is 344. The total number of observations in 2017-2018 precipitation data is 24. The total precipitation in 2018 was 103.26. The median sports balls in a dumpster from 2017 is 8. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year.</p>
+<p>Data Summary: The total number of observations in the healthy harbor dataset is 344. The total number of observations in 2017-2018 precipitation data is 24. The total precipitation in 2018 was 70.33. The median sports balls in a dumpster from 2017 is 8. The key variables in the healthy harbor dataset and the precipitation dataset were total, month, and year. ## Problem 2 ### Read in pols month data and create one president variable that encompasses dem and gop. Removed day variable at the end.</p>
+<pre class="r"><code>pols_month = read_csv(&quot;./HW2_data/fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  separate(mon, into= c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;),
+  convert=TRUE) %&gt;% 
+  mutate(month=month.name[month]) %&gt;% 
+  mutate(prez_dem=recode(prez_dem, &quot;1&quot;=&quot;dem&quot;)) %&gt;% 
+  mutate(prez_gop=recode(prez_gop, &quot;1&quot; = &quot;gop&quot;)) %&gt;%
+  pivot_longer(c(&quot;prez_dem&quot;, &quot;prez_gop&quot;),
+               values_to = &quot;president&quot;,
+               values_drop_na = TRUE) %&gt;% 
+   select(-day)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   mon = col_date(format = &quot;&quot;),
+##   prez_gop = col_double(),
+##   gov_gop = col_double(),
+##   sen_gop = col_double(),
+##   rep_gop = col_double(),
+##   prez_dem = col_double(),
+##   gov_dem = col_double(),
+##   sen_dem = col_double(),
+##   rep_dem = col_double()
+## )</code></pre>
+<pre><code>## Warning: Unreplaced values treated as NA as .x is not compatible. Please
+## specify replacements exhaustively or supply .default
+
+## Warning: Unreplaced values treated as NA as .x is not compatible. Please
+## specify replacements exhaustively or supply .default</code></pre>
 </div>
+</div>
+<div id="read-in-five-thirty-eight-data-and-arrange-data-to-month-day-year-and-remove-day-variable." class="section level2">
+<h2>Read in Five Thirty Eight data and arrange data to month day year and remove day variable.</h2>
+<pre class="r"><code>snp_data = 
+  read_csv(&quot;./HW2_data/fivethirtyeight_datasets/snp.csv&quot;) %&gt;%
+  janitor::clean_names() %&gt;% 
+  separate(date, into= c(&quot;month&quot;, &quot;day&quot;, &quot;year&quot;),
+  convert=TRUE) %&gt;% 
+  select(year, month, -day, close)%&gt;% 
+  mutate(month=month.name[month])</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   date = col_character(),
+##   close = col_double()
+## )</code></pre>
+</div>
+<div id="read-in-unemployment-data-and-tidy-data-to-match-previous-two-data-sets." class="section level2">
+<h2>Read in Unemployment data and tidy data to match previous two data sets.</h2>
+<pre class="r"><code>unemp_data=
+  read_csv(&quot;./HW2_data/fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;%
+  pivot_longer(Jan:Dec,
+              names_to=&quot;month&quot;,
+              values_to=&quot;rate&quot;)%&gt;%
+  mutate(month=match(month, month.abb)) %&gt;% 
+  mutate(month=month.name[month]) %&gt;% 
+  mutate(Year=as.integer(Year)) %&gt;% 
+  janitor::clean_names()</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   Year = col_double(),
+##   Jan = col_double(),
+##   Feb = col_double(),
+##   Mar = col_double(),
+##   Apr = col_double(),
+##   May = col_double(),
+##   Jun = col_double(),
+##   Jul = col_double(),
+##   Aug = col_double(),
+##   Sep = col_double(),
+##   Oct = col_double(),
+##   Nov = col_double(),
+##   Dec = col_double()
+## )</code></pre>
+</div>
+<div id="merge-all-datasets" class="section level2">
+<h2>Merge all datasets</h2>
+<pre class="r"><code>Prob_2= pols_month %&gt;% 
+  left_join(snp_data,
+            by=c(&quot;year&quot;, &quot;month&quot;)) %&gt;% 
+  left_join(unemp_data,
+            by=c(&quot;year&quot;, &quot;month&quot;))</code></pre>
+<p>Data Summary: The data in the pols-month data set included the the number of national politicians who are democratic or republican for any given month from 1947-2015. With this data, a variable was created categorizing the variable president to democratic and republican polling categories. This dataset has 817 observatins and 10 variables. The data in the snp dataset is the Standard &amp; Poor’s stock market index. The dataset contains the closing values of the stock index of the associated date and the date of the observation for 1950-2015. This dataset contains 787 observations and 3 variables. The unemployment dataset includes the percentage of unemployment for month of the associated year for 1948-2015. This dataset contains 816 observations and 4 variables. The three datasets were merged resulting in dataset “prob_2” wich has observations from 1947-2015 and 817 observations and 13 variables. The key variables used throughout are month and year.</p>
 </div>
 
 
