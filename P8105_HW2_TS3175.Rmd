@@ -103,7 +103,12 @@ The data in the snp dataset is the Standard & Poor's stock market index. The dat
 The unemployment dataset includes the percentage of unemployment for month of the associated year for 1948-2015. This dataset contains 816 observations and 4 variables.
 The three datasets were merged resulting in dataset "prob_2" wich has observations from 1947-2015 and 817 observations and 13 variables. 
 The key variables used throughout are month and year.
-### Problem 3
+
+## Problem 3
+### Read in baby names dataset and clean variable names by renaming ethinicities to standardized names and standardizing the cases of child's first names. Then created the following: 
+#### 1. Table showing the rank in popularity of the name “Olivia” as a female baby name over time.
+#### 2. Table showing the rank of all male children names over time.
+#### 3. Scatter plot showing the number of children with a name against the rank in popularity of that name.
 ```{r}
 baby_names= 
   read_csv("./HW2_data/Popular_Baby_Names.csv") %>% 
@@ -112,37 +117,39 @@ baby_names=
     ethnicity = recode(ethnicity, "ASIAN AND PACI" =  "ASIAN AND PACIFIC ISLANDER"),
     ethnicity = recode(ethnicity, "BLACK NON HISP" = "BLACK NON HISPANIC"),
     ethnicity = recode(ethnicity, "WHITE NON HISP" = "WHITE NON HISPANIC")) %>% 
-    mutate(childs_first_name = str_to_title(childs_first_name)) %>%
+    mutate(childs_first_name = str_to_title(childs_first_name),
+           ethnicity = str_to_title(ethnicity),
+           gender = str_to_title(gender)) %>%
     distinct()
 ```
-
 ```{r}
 baby_names %>% 
-    filter(childs_first_name == "Olivia")%>%
+    filter(childs_first_name == "Olivia", gender == "Female")%>%
     select(everything(), -childs_first_name, -gender, -count) %>% 
     pivot_wider(
       names_from = year_of_birth,
-      values_from = rank)
-   
+      values_from = rank) %>% 
+   knitr::kable()
 ```
 
 ```{r}
 baby_names %>% 
-  filter(gender == "MALE", rank == 1) %>%
+  filter(gender == "Male", rank == 1)%>%
   select(everything(), -gender, -rank, -count) %>% 
   pivot_wider(
       names_from = year_of_birth,
-      values_from = childs_first_name)
+      values_from = childs_first_name) %>% 
+  knitr::kable()
 ```
 
 ```{r}
 baby_names %>% 
-  filter(gender == "MALE", ethnicity == "WHITE NON HISPANIC", year_of_birth == 2016) %>%
-  ggplot(aes(x=rank, y=count)) + geom_point()+
+  filter(gender == "Male", ethnicity == "White Non Hispanic", year_of_birth == 2016) %>%
+  ggplot(aes(x=rank, y=count)) + geom_point(color="blue")+
   labs(
     title = "Popular Male Names and Ranks Among White Non-Hispanic",
-    x = "Male Popularity Ranking",
-    y = "Count with Name",
+    x = "Male Name Popularity Ranking",
+    y = "Count of Name",
     caption = "Source: NYC Open Data, Popular Data Names"
   )
 ```
